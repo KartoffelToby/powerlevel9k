@@ -16,6 +16,26 @@
 # theming with simple variables defined in your `~/.zshrc`.
 ################################################################
 
+
+### CONFIG
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(root_indicator context os_icon dir vcs)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status time)
+POWERLEVEL9K_TIME_FORMAT='%D{%H:%M}'
+POWERLEVEL9K_MODE='awesome-patched'
+POWERLEVEL9K_VCS_GIT_ICON='\Ue602 '
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=3
+POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
+POWERLEVEL9K_STATUS_VERBOSE=false
+POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON='\Uf107'
+POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON='\Uf106'
+POWERLEVEL9K_VCS_MODIFIED_BACKGROUND='yellow'
+POWERLEVEL9K_VCS_UNTRACKED_BACKGROUND='yellow'
+####
+
+
+
+
+
 ## Turn on for Debugging
 #zstyle ':vcs_info:*+*:*' debug true
 #set -o xtrace
