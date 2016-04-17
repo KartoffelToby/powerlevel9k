@@ -28,7 +28,7 @@ function +vi-git-untracked() {
 function +vi-git-aheadbehind() {
     local tracking_branch=$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)" 2> /dev/null)
     local ahead behind branch_name
-    local -a gitstatus behind_ahead
+    local -a gitstatus
 
     #branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
 
