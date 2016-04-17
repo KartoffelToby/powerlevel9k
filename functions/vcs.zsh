@@ -26,18 +26,28 @@ function +vi-git-untracked() {
 }
 
 function +vi-git-aheadbehind() {
+    local tracking_branch=$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)" 2> /dev/null)
     local ahead behind branch_name
-    local -a gitstatus
+    local -a gitstatus behind_ahead
 
     branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
 
+    local behind_ahead_lines
+    behind_ahead_lines=$(command git rev-list --left-right "$tracking_branch"...HEAD)
+    if [ -n "$behind_ahead_lines" ]; then
+        local behead
+        behead=$(echo "$behind_ahead_lines" | wc -l | tr -d ' ')
+        ahead=$(echo "$behind_ahead_lines" | sed  '/^[^>]/d' | wc -l | tr -d ' ')
+        behind=$((behead - ahead))
+    fi
+
     # for git prior to 1.7
-    ahead=$(git rev-list origin/${branch_name}..HEAD | wc -l)
+    # ahead=$(git rev-list origin/${branch_name}..HEAD | wc -l)
     #ahead=$(git rev-list "${branch_name}"@{upstream}..HEAD 2>/dev/null | wc -l)
     (( ahead )) && gitstatus+=( " $(print_icon 'VCS_OUTGOING_CHANGES_ICON')${ahead// /}" )
 
     # for git prior to 1.7
-    behind=$(git rev-list HEAD..origin/${branch_name} | wc -l)
+    # behind=$(git rev-list HEAD..origin/${branch_name} | wc -l)
     #behind=$(git rev-list HEAD.."${branch_name}"@{upstream} 2>/dev/null | wc -l)
     (( behind )) && gitstatus+=( " $(print_icon 'VCS_INCOMING_CHANGES_ICON')${behind// /}" )
 
@@ -74,7 +84,7 @@ function +vi-git-tagname() {
       # exists, so we have to manually retrieve it and clobber the branch
       # string.
       local revision
-      revision=$(git rev-list -n 1 --abbrev-commit --abbrev=8 HEAD)
+      revision=$(git rev-list -n 1 --abbrev-commit --abbrev=${POWERLEVEL9K_VCS_INTERNAL_HASH_LENGTH} HEAD)
       hook_com[branch]="$(print_icon 'VCS_BRANCH_ICON')${revision} $(print_icon 'VCS_TAG_ICON')${tag}"
     else
       # We are on both a tag and a branch; print both by appending the tag name.

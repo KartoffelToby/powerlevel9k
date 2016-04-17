@@ -19,6 +19,13 @@
 
 
 ### CONFIG
+
+setopt notify
+setopt nopromptcr
+setopt inc_append_history
+setopt share_history
+
+
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(root_indicator context os_icon dir vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status time)
 POWERLEVEL9K_TIME_FORMAT='%D{%H:%M}'
@@ -841,8 +848,8 @@ set_default POWERLEVEL9K_VCS_ACTIONFORMAT_FOREGROUND "red"
 prompt_vcs() {
   autoload -Uz vcs_info
 
-  VCS_WORKDIR_DIRTY=false
-  VCS_WORKDIR_HALF_DIRTY=false
+  VCS_WORKDIR_DIRTY=true
+  VCS_WORKDIR_HALF_DIRTY=true
 
   # The vcs segment can have three different states - defaults to 'clean'.
   local current_state=""
@@ -850,7 +857,7 @@ prompt_vcs() {
   vcs_states=(
     'clean'         'green'
     'modified'      'yellow'
-    'untracked'     'green'
+    'untracked'     'yellow'
   )
 
   VCS_CHANGESET_PREFIX=''
@@ -886,6 +893,7 @@ prompt_vcs() {
   zstyle ':vcs_info:hg*:*' get-revision true
   zstyle ':vcs_info:hg*:*' get-bookmarks true
   zstyle ':vcs_info:hg*+gen-hg-bookmark-string:*' hooks hg-bookmarks
+  zstyle ':vcs_info:git*+set-message:*' hooks git-st
 
   if [[ "$POWERLEVEL9K_SHOW_CHANGESET" == true ]]; then
     zstyle ':vcs_info:*' get-revision true
