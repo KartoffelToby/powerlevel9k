@@ -32,8 +32,8 @@ function +vi-git-aheadbehind() {
 
     #branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
 
-    ahead=$(git rev-list origin/${tracking_branch}..HEAD | wc -l)
-    behind=$(git rev-list HEAD..origin/${tracking_branch} | wc -l)
+    ahead=$(git rev-list ${tracking_branch}..HEAD | wc -l)
+    behind=$(git rev-list HEAD..${tracking_branch} | wc -l)
  
 
     # for git prior to 1.7
