@@ -30,16 +30,11 @@ function +vi-git-aheadbehind() {
     local ahead behind branch_name
     local -a gitstatus behind_ahead
 
-    branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
+    #branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
 
-    local behind_ahead_lines
-    behind_ahead_lines=$(git rev-list --left-right "$tracking_branch"...HEAD)
-    if [ -n "$behind_ahead_lines" ]; then
-        local behead
-        behead=$(echo "$behind_ahead_lines" | wc -l | tr -d ' ')
-        ahead=$(git rev-list origin/${tracking_branch}..HEAD | wc -l)
-        behind=$(git rev-list HEAD..origin/${tracking_branch} | wc -l)
-    fi
+    ahead=$(git rev-list origin/${tracking_branch}..HEAD | wc -l)
+    behind=$(git rev-list HEAD..origin/${tracking_branch} | wc -l)
+ 
 
     # for git prior to 1.7
     # ahead=$(git rev-list origin/${branch_name}..HEAD | wc -l)
