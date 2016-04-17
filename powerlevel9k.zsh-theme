@@ -984,7 +984,6 @@ build_right_prompt() {
 }
 
 powerlevel9k_prepare_prompts() {
-
   RETVAL=$?
 
   if [[ "$POWERLEVEL9K_PROMPT_ON_NEWLINE" == true ]]; then
@@ -1012,22 +1011,6 @@ $(print_icon 'MULTILINE_SECOND_PROMPT_PREFIX')"
   if [[ "$POWERLEVEL9K_DISABLE_RPROMPT" != true ]]; then
     RPROMPT="$RPROMPT_PREFIX%f%b%k$(build_right_prompt)%{$reset_color%}$RPROMPT_SUFFIX"
   fi
-
-  setopt prompt_subst
-  ASYNC_PROC=0
-  function async() {
-    # save to temp file
-    printf "%s" "$(PROMPT)" > "${HOME}/.zsh_tmp_prompt"
-
-    # signal parent
-    kill -s USR1 $$
-  }
-
-  if [[ "${ASYNC_PROC}" != 0 ]]; then
-      kill -s HUP $ASYNC_PROC >/dev/null 2>&1 || :
-  fi
-  async &!
-  ASYNC_PROC=$!
 }
 
 function zle-line-init {
@@ -1035,10 +1018,6 @@ function zle-line-init {
   if (( ${+terminfo[smkx]} )); then
     printf '%s' ${terminfo[smkx]}
   fi
-
-  RPROMPT="$(cat ${HOME}/.zsh_tmp_prompt)"
-  ASYNC_PROC=0
-
   zle reset-prompt
   zle -R
 }
@@ -1048,33 +1027,14 @@ function zle-line-finish {
   if (( ${+terminfo[rmkx]} )); then
     printf '%s' ${terminfo[rmkx]}
   fi
-
-  RPROMPT="$(cat ${HOME}/.zsh_tmp_prompt)"
-  ASYNC_PROC=0
-
   zle reset-prompt
   zle -R
 }
 
 function zle-keymap-select {
   powerlevel9k_prepare_prompts
-
-  RPROMPT="$(cat ${HOME}/.zsh_tmp_prompt)"
-  ASYNC_PROC=0
-
   zle reset-prompt
   zle -R
-}
-
-function TRAPUSR1() {
-  # read from temp file
-  RPROMPT="$(cat ${HOME}/.zsh_tmp_prompt)"
-
-  # reset proc number
-  ASYNC_PROC=0
-
-  # redisplay
-  zle && zle reset-prompt
 }
 
 powerlevel9k_init() {
