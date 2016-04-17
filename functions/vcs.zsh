@@ -37,8 +37,8 @@ function +vi-git-aheadbehind() {
     if [ -n "$behind_ahead_lines" ]; then
         local behead
         behead=$(echo "$behind_ahead_lines" | wc -l | tr -d ' ')
-        ahead=$(echo "$behind_ahead_lines" | sed  '/^[^>]/d' | wc -l | tr -d ' ')
-        behind=$((behead - ahead))
+        ahead=$(git rev-list origin/${tracking_branch}..HEAD | wc -l)
+        behind=$(git rev-list HEAD..origin/${tracking_branch} | wc -l)
     fi
 
     # for git prior to 1.7
