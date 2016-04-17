@@ -33,7 +33,7 @@ function +vi-git-aheadbehind() {
     branch_name=$(git symbolic-ref --short HEAD 2>/dev/null)
 
     local behind_ahead_lines
-    behind_ahead_lines=$(command git rev-list --left-right "$tracking_branch"...HEAD)
+    behind_ahead_lines=$(git rev-list --left-right "$tracking_branch"...HEAD)
     if [ -n "$behind_ahead_lines" ]; then
         local behead
         behead=$(echo "$behind_ahead_lines" | wc -l | tr -d ' ')
