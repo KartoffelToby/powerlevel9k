@@ -40,6 +40,34 @@ POWERLEVEL9K_VCS_INCOMING_CHANGES_ICON='\Uf063 '
 POWERLEVEL9K_VCS_OUTGOING_CHANGES_ICON='\Uf062 '
 POWERLEVEL9K_VCS_MODIFIED_BACKGROUND='yellow'
 POWERLEVEL9K_VCS_UNTRACKED_BACKGROUND='yellow'
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(custom_user custom_os dir rbenv vcs )
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status time)
+POWERLEVEL9K_TIME_FORMAT='`emoji-clock` %D{%H:%M}'
+POWERLEVEL9K_STATUS_VERBOSE=false
+POWERLEVEL9K_CUSTOM_USER=(username)
+if [ $USERNAME = 'root' ]
+ then
+  POWERLEVEL9K_CUSTOM_USER_BACKGROUND="red"
+ else
+  POWERLEVEL9K_CUSTOM_USER_BACKGROUND="green"
+fi
+POWERLEVEL9K_CUSTOM_OS='echo "\Ue672 "'
+POWERLEVEL9K_CUSTOM_OS_BACKGROUND="black"
+POWERLEVEL9K_CUSTOM_OS_FOREGROUND="215"
+POWERLEVEL9K_SHORTEN_STRATEGY="truncate_middle"
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=4
+POWERLEVEL9K_DIR_HOME_FOREGROUND="white"
+POWERLEVEL9K_DIR_HOME_SUBFOLDER_FOREGROUND="white"
+POWERLEVEL9K_DIR_DEFAULT_FOREGROUND="white"
+
+username(){
+ if [ $USERNAME = 'root' ]
+  then
+   echo "$USERNAME  "
+  else
+   echo "$USERNAME \Ue600"
+ fi
+}
 ####
 
 
@@ -49,34 +77,6 @@ POWERLEVEL9K_VCS_UNTRACKED_BACKGROUND='yellow'
 ## Turn on for Debugging
 #zstyle ':vcs_info:*+*:*' debug true
 #set -o xtrace
-
-# Check if the theme was called as a function (e.g., from prezto)
-if [[ $(whence -w prompt_powerlevel9k_setup) =~ "function" ]]; then
-  autoload -U is-at-least
-  if is-at-least 5.0.8; then
-    # Try to find the correct path of the script.
-    0=$(whence -v $0 | sed "s/$0 is a shell function from //")
-  elif [[ -f "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/init.zsh" ]]; then
-    # If there is an prezto installation, we assume that powerlevel9k is linked there.
-    0="${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/functions/prompt_powerlevel9k_setup"
-  else
-    # Fallback: specify an installation path!
-    if [[ -z "$POWERLEVEL9K_INSTALLATION_PATH" ]]; then
-      print -P "%F{red}We could not locate the installation path of powerlevel9k.%f"
-      print -P "Please specify by setting %F{blue}POWERLEVEL9K_INSTALLATION_PATH%f (full path incl. file name) at the very beginning of your ~/.zshrc"
-      return 1
-    elif [[ -L "$POWERLEVEL9K_INSTALLATION_PATH" ]]; then
-      # Symlink
-      0="$POWERLEVEL9K_INSTALLATION_PATH"
-    elif [[ -f "$POWERLEVEL9K_INSTALLATION_PATH" ]]; then
-      # File
-      0="$POWERLEVEL9K_INSTALLATION_PATH"
-    elif [[ -d "$POWERLEVEL9K_INSTALLATION_PATH" ]]; then
-      # Directory
-      0="${POWERLEVEL9K_INSTALLATION_PATH}/powerlevel9k.zsh-theme"
-    fi
-  fi
-fi
 
 # If this theme is sourced as a symlink, we need to locate the true URL
 if [[ -L $0 ]]; then
@@ -529,15 +529,6 @@ prompt_dir() {
   fi
 }
 
-# Docker machine
-prompt_docker_machine() {
-  local docker_machine="$DOCKER_MACHINE_NAME"
-
-  if [[ -n "$docker_machine" ]]; then
-    "$1_prompt_segment" "$0" "$2" "magenta" "$DEFAULT_COLOR" "$docker_machine" 'SERVER_ICON'
-  fi
-}
-
 # GO prompt
 prompt_go_version() {
   local go_version
@@ -893,7 +884,6 @@ prompt_vcs() {
   zstyle ':vcs_info:hg*:*' get-revision true
   zstyle ':vcs_info:hg*:*' get-bookmarks true
   zstyle ':vcs_info:hg*+gen-hg-bookmark-string:*' hooks hg-bookmarks
-  zstyle ':vcs_info:git*+set-message:*' hooks git-st
 
   if [[ "$POWERLEVEL9K_SHOW_CHANGESET" == true ]]; then
     zstyle ':vcs_info:*' get-revision true
@@ -992,6 +982,7 @@ build_right_prompt() {
 }
 
 powerlevel9k_prepare_prompts() {
+
   RETVAL=$?
 
   if [[ "$POWERLEVEL9K_PROMPT_ON_NEWLINE" == true ]]; then
@@ -1045,6 +1036,18 @@ function zle-keymap-select {
   zle -R
 }
 
+function chpwd {
+  if [ -d .git ]; then
+    (set +m; git remote update &>/dev/null &)
+  fi
+}
+
+TRAPINT() {
+  print "Caught SIGINT, aborting."
+  return $(( 128 + $1 ))
+}
+
+
 powerlevel9k_init() {
   # Display a warning if the terminal does not support 256 colors
   local term_colors
@@ -1085,3 +1088,9 @@ powerlevel9k_init() {
 }
 
 powerlevel9k_init "$@"
+
+TMOUT=30
+
+TRAPALRM() {
+    zle reset-prompt
+}
